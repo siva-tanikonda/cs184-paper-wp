@@ -1,0 +1,92 @@
+<html>
+	<head>
+		<script src='https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.4/MathJax.js?config=default'></script>
+		<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600&display=swap" rel="stylesheet">
+		<style>
+			h1 {
+				text-align: center;
+			}
+
+			.container {
+				margin: 0 auto;
+				padding: 200px 20%;
+			}
+
+			figure {
+				text-align: center;
+			}
+
+			img {
+				display: inline-block;
+			}
+
+			body {
+				font-family: 'Inter', sans-serif;
+			}
+		</style>
+	</head>
+	<body>
+		<div class="container">
+		<h1>Origami Simulation: Milestone</h1>
+		<div style="text-align: center;">Names: Siva Tanikonda, Krishna Mani, Max Tse, Brandon Huang</div>
+
+        <br>
+        
+        Link to Slides: <a href="https://docs.google.com/presentation/d/1H96KwcN61NkM5BgHfjxeoicezMRdKBxtncHrwsgJbNM/edit?usp=sharing">docs.google.com/presentation/d/1H96KwcN61NkM5BgHfjxeoicezMRdKBxtncHrwsgJbNM/edit?usp=sharing</a>
+        
+        <br>
+
+		Link to Video: <a href="">(INSERT LINK HERE)</a>
+
+            <h2>Summary</h2>
+
+            <p>After looking through the paper we planned to use in the proposal (<i>Folding and Crumpling of Adaptive Sheets</i>), we realized that the complexity of the paper was too high for us to reasonably complete the project within the 4-week timeframe. So, we spent some time finding an alternate, simpler implementation of paper simulation that specifically focused on origami: <i>Discrete Shells Origami</i>. This paper required us to first implement a new cloth simulation/mesh framework outlined in another paper: <i>Large Steps in Cloth Simulation</i>. We decided to use our finished CS 184 Project 4 code as a base for our project, but with the following changes:
+            <ul>
+
+                <li>We added a system to load meshes from <code>.obj</code> files rather than simply having rectangular cloth. This also naturally resulted in the arrangement of springs being different from the Project 4 code. Instead of each spring being represented as a 3D line segment in our mesh, the springs are now not separate entities from the triangles, but rather, each triangle has its own constants for shearing, bending, and stretching forces.</li>
+                <li>We changed the integrator from using Verlet integration to using the implicit integrator outlined in the <i>Large Steps in Cloth Simulation</i> paper. This integrator utilizes the below formula for calculating the next position and velocity of our point masses.\[\begin{bmatrix}\Delta\vec{x}\\\Delta\vec{v}\end{bmatrix}=h\begin{bmatrix}\vec{v}_t+\Delta\vec{v}\\\mathbf{M}^{-1}\vec{f}\left(\vec{x}_t+\Delta\vec{x},\vec{v}_t+\Delta\vec{v}\right)\end{bmatrix}\]where \(\vec{f}(\cdot,\cdot)\) is the force vector at a given position and velocity, \(\mathbf{M}\) is a matrix that maps an acceleration vector to a net force vector applied to the point mass, \(t\) represents our current timestep, and \(t+h\) represents the next timestep. Another key benefit of this simulation technique is that it runs faster than typical explicit integrators (this result is outlined in the paper).</li>
+
+            </ul>
+			So far, we have implemented stretch and shearing constraint springs in our mesh, but have yet to handle bending constraints. In order to begin working on simulating paper/origami, we need to implement the bending constraints.</p>
+
+			<p>To be more specific, here are the changes we made to the Project 4 code:
+			<ul>
+				<li>We added a function <code>buildFromOBJ()</code> to <code>cloth.cpp</code> to load an arbitrary <code>.obj</code> file and place point masses according to the file's mesh structure.</li>
+				<li>We created the new files <code>physics.cpp</code> and <code>physics.h</code> that calculate stretch constraints and shearing constraints for each triangle in our mesh. The implementation is outlined in the <i>Large Steps in Cloth Simulation</i> paper.</li>
+				<li>We changed <code>buildClothMesh()</code> in <code>cloth.cpp</code> to build our cloth mesh according to the mesh constructed by <code>buildFromOBJ()</code>. In this function, we also constructed a world-to-object space matrix \(\mathbf{D}_{u,v}\) for each triangle, which we use in our stretch and shear constraint calculations.</li>
+			</ul></p>
+
+            <h2>Results</h2>
+			We managed to replicate the results of Homework 4 using our new cloth simulation model, and we can now render arbitrary triangle meshes from compatible <code>.obj</code> files. Below are two images that show the features we have implemented.
+			<div style="display: flex; flex-direction: column; align-items: center;">
+                <table style="width: 100%; text-align: center; border-collapse: collapse;">
+                  <tr>
+                    <td style="text-align: center;">
+                      <img src="images/bunny.png" width="400px"/>
+                      <figcaption>Bunny Mesh in Cloth Simulator</figcaption>
+                    </td>
+                    <td style="text-align: center;">
+                      <img src="images/cloth.png" width="400px"/>
+                      <figcaption>Cloth on Ball Using New Model</figcaption>
+                    </td>
+                  </tr>
+                </table>
+            </div>
+			Once we implement bending constraints, we will be able to simulate more complex cloth and paper behavior.
+
+            <h2>Progress</h2>
+			<p>We are somewhat behind compared to our proposal timeline due to the fact that we spent a significant portion of the last two weeks deciding what new model we should use for our paper simulation. But, we have now created the basic mesh infrastructure required to develop our demos and ensure physics are generalizeable to arbitrary meshes. In the next two weeks, we plan to complete the bending constraint code, and finally implement the meat of the <i>Discrete Shells Origami</i> paper. Given that this new paper allows us to simulate simple origami paper folding, we will now attempt to make our primary demo one where we fold a basic origami pattern, rather than standard paper simulation.</p>
+
+			<p>Additionally, we have to clean-up some of the integration of our new model with the pre-existing Homework 4 starter code. For example, we need to properly be able to show the structure/"wireframe" of our mesh even with the new mesh structure that doesn't separate the springs from the triangle mesh object. On top of this, we need to optimize the speed of the simulation using some more of the optimizations in <i>Large Steps in Cloth Simulation</i>. In particular, there is a nice optimization in this paper that allows us to limit the number of coordinates that we need to consider when calculating a point mass's future velocity and position.</p>
+
+			<h2>Resources</h2>
+            <ul>
+                <li>(Paper) Discrete Shells Origami: <a href="https://www.cs.columbia.edu/cg/pdfs/115-origami-CATA-2006.pdf">cs.columbia.edu/cg/pdfs/115-origami-CATA-2006.pdf</a></li>
+                <li>(Paper) Large Steps in Cloth Simulation: <a href="https://www.cs.cmu.edu/~baraff/papers/sig98.pdf">cs.cmu.edu/~baraff/papers/sig98.pdf</a></li>
+				<li>(Library) CGL Vectors Library</li>
+                <li>(Code) CS 184 Project 4 Starter Code</li>
+            </ul>
+
+		</div>
+	</body>
+</html>

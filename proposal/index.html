@@ -1,0 +1,105 @@
+<html>
+	<head>
+		<script src='https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.4/MathJax.js?config=default'></script>
+		<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600&display=swap" rel="stylesheet">
+		<style>
+			h1 {
+				text-align: center;
+			}
+
+			.container {
+				margin: 0 auto;
+				padding: 60px 20%;
+			}
+
+			figure {
+				text-align: center;
+			}
+
+			img {
+				display: inline-block;
+			}
+
+			body {
+				font-family: 'Inter', sans-serif;
+			}
+		</style>
+	</head>
+	<body>
+		<div class="container">
+		<h1>Realistic Paper Simulator: Proposal</h1>
+		<div style="text-align: center;">Names: Siva Tanikonda, Krishna Mani, Max Tse, Brandon Huang</div>
+
+            <h2>Overview</h2>
+
+            The goal of this project is to create a realistic simulation of paper physics (folding, creasing, bending, etc.). The project will also include a few demos to compare the behavior of real paper with our simulated paper material.
+
+            <h2>Problem Overview</h2>
+
+            In CS 184 Project 4, we have learned how to simulate cloth physics using a mass and spring-based system. But, simulating paper introduces a few novel problems, including but not limited to: creasing/folding (after paper has been creased/folded, it doesn't simply return to its old shape) and elastic bending (if you bend a piece of paper to a slight degree, it will return to its original shape, unlike with cloth). This requires us to maintain some sense of "memory" in the mesh throughout the simulation, which will be a challenge. We will solve this problem by first reading research papers that other people have made regarding this problem, and then trying to translate the research to make a simulation system. Another challenge with this project will be creating the demos, since we have not created 3D models from scratch in this class, and it may be difficult to create interesting simulations of certain physical behaviors of paper (ex: crumpling, folding complex shapes, etc.).
+
+            <h2>Goals and Deliverables</h2>
+
+            We hope to be able to create images/videos of various physical phenomena regarding paper. Some behaviors we want to simulate are:
+            <div style="display: flex; flex-direction: column; align-items: center;">
+                <table style="width: 100%; text-align: center; border-collapse: collapse;">
+                  <tr>
+                    <td style="text-align: center;">
+                      <img src="images/crumpled.png" width="400px"/>
+                      <figcaption>Paper Crumpling</figcaption>
+                    </td>
+                    <td style="text-align: center;">
+                      <img src="images/folded.png" width="400px"/>
+                      <figcaption>Paper Folding</figcaption>
+                    </td>
+                  </tr>
+                  <tr>
+                    <td style="text-align: center;">
+                      <img src="images/bending.png" width="400px"/>
+                      <figcaption>Paper Bending</figcaption>
+                    </td>
+                    <td style="text-align: center;">
+                      <img src="images/airplane.png" width="400px"/>
+                      <figcaption><strong>(Stretch Goal)</strong> Folding Paper Airplane</figcaption>
+                    </td>
+                  </tr>
+                </table>
+            </div>
+            As for interactivity in our simulation, we are hoping to allow users to change the gravity and what mesh they want to represent as a paper material. The quality/performance of our system will mainly be measured subjectively based on how well the demos we create simulate the real-life behavior of paper (ex. we will compare crumpling a real paper to crumpling a paper in our simulation). In particular, we hope to simulate the behavior of paper without running into clipping issues in our mesh. Therefore, our key research question is: is it possible to simulate paper effectively via a computer simulation, and is it possible to create accurate, interesting demonstrations of complex paper behavior using our simulation? As for the latter part of our research question, whether or not we can simulate something complex like origami folding is going to be an uncertainty in our project, so it will be interesting to see how far we can push the accuracy of such a demonstration. In order to have a successful project, our team will hope to do the following:
+            <ol>
+                <li>Create a working and reasonably realistic simulation of paper physics/material, including gravity and rendering.</li>
+                <li>Create demos of paper crumpling, paper folding, and paper bending.</li>
+                <li>Attempt to create as realistic of a demo as possible for folding a simple origami model.</li>
+            </ol>
+            To account for potential unexpected problems during implementation, we will reserve the last week of the project as buffer time in-case we run into unexpected bugs/challenges when implementing. This project should be doable in the given time frame, since other people (particularly at UC Berkeley) have already looked into how to solve this problem in past research. So, we should have ample time to explore creating a complex demo for our simulation.
+
+            <h2>Schedule</h2>
+
+            Week 1 (4/7 - 4/13) - Write the base code that we will use to display our simulation and change basic parameters such as gravity. We also want to incorporate paper material properties into our mesh data structure.</br>
+            Week 2 (4/14 - 4/20) - Create the simulation system based on our data structure and interface in the previous week. Also, Create the basic demos for the project (crumpling, folding, and bending).</br>
+            Week 3 (4/21 - 4/27) - Attempt to create the complex origami demo (we will use the rest of the remaining project time to try and make this demo look as good as possible and enhance our simulation as needed).</br>
+            Week 4 (4/28 - 5/4) - Buffer time in-case some of the earlier weeks' tasks take too much time.</br>
+
+            <h2>Resources</h2>
+
+            Work has been done at UC Berkeley on paper physics, so we will refer to that work in our project. We will also be referring-to and using our Project 3 and Project 4 code to deal with meshing, rasterization, and physics in our project. Here is a potential list of outside resources we will reference:
+            <ul>
+                <li>(Website) ARCSim: <a href="http://graphics.berkeley.edu/resources/ARCSim/">graphics.berkeley.edu/resources/ARCSim</a></li>
+                <li>(Website) Origami Simulator: <a href="https://origamisimulator.org/">origamisimulator.org</a></li>
+                <li>(Paper) Folding and Crumpling Adaptive Sheets: <a href="http://graphics.berkeley.edu/papers/Narain-FCA-2013-07/Narain-FCA-2013-07.pdf">graphics.berkeley.edu/papers/Narain-FCA-2013-07/Narain-FCA-2013-07.pdf</a></li>
+                <li>(Code) CS 184 Project 3 Code: No link, but we will reference this code when dealing with meshes and rasterization. We will also use some of the meshes provided in this project for testing.</li>
+                <li>(Code) CS 184 Project 4 Code: No link, but we will reference this code when starting to work on our physics system.</li>
+            </ul>
+            As for tools we may use:
+            <ul>
+                <li>(Programming Language) C++</li>
+                <li>(Graphics Library) OpenGL: <a href="https://www.opengl.org/">opengl.org</a></li>
+                <li>(Creating Demo Models) Blender: <a href="https://www.blender.org/">blender.org</a></li>
+                <li>(Coding) VSCode: <a href="https://code.visualstudio.com/">code.visualstudio.com</a></li>
+                <li>(Operating System) Linux and MacOS</li>
+                <li>(Hardware Resources) MacBooks and a desktop with a dedicated graphics card</li>
+            </ul>
+
+		</div>
+	</body>
+</html>
