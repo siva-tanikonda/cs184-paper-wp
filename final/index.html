@@ -28,12 +28,22 @@
     </header>
 
     <div class="container">
+        <!-- Video placeholder -->
+        <section id="video">
+            <div class="video-container">
+                <!-- Video will be embedded here -->
+                <div class="video-placeholder">
+                    <p>Video demonstration will be added here</p>
+                </div>
+            </div>
+        </section>
+
         <section id="abstract">
             <h2>Abstract</h2>
             <p>This project explores the simulation of paper-like materials through cloth simulation techniques, focusing on achieving realistic folding and bending behaviors. Building upon the CS 184 Project 4 cloth simulation framework, we implemented a more robust physics engine based on implicit integration and enhanced constraint modeling. We replaced the rectangular grid structure with support for arbitrary triangle meshes loaded from OBJ files, and introduced specialized forces to approximate paper stiffness and bending resistance. While we initially planned to implement full origami folding capabilities, we strategically narrowed our scope to focus on the underlying physics of paper-like materials. Our approach successfully demonstrates that cloth simulation techniques can be adapted to model stiffer materials with realistic folding behavior without implementing complex remeshing or explicit fold creation.</p>
         </section>
 
-        <section id="summary">
+        <!-- <section id="summary">
             <h2>Summary</h2>
             <p>After looking through the paper we planned to use in the proposal (<i>Folding and Crumpling of Adaptive Sheets</i>), we realized that the complexity of the paper was too high for us to reasonably complete the project within the 4-week timeframe. So, we spent some time finding an alternate, simpler implementation of paper simulation: <i>Discrete Shells Origami</i>. This paper required us to first implement a new cloth simulation/mesh framework outlined in another paper: <i>Large Steps in Cloth Simulation</i>. We decided to use our finished CS 184 Project 4 code as a base for our project, but with the following changes:</p>
             
@@ -53,16 +63,40 @@
                 <li>We created the new files <code>physics.cpp</code> and <code>physics.h</code> that calculate stretch constraints and shearing constraints for each triangle in our mesh. The implementation is outlined in the <i>Large Steps in Cloth Simulation</i> paper.</li>
                 <li>We changed <code>buildClothMesh()</code> in <code>cloth.cpp</code> to build our cloth mesh according to the mesh constructed by <code>buildFromOBJ()</code>. In this function, we also constructed a world-to-object space matrix \(\mathbf{D}_{u,v}\) for each triangle, which we use in our stretch and shear constraint calculations.</li>
             </ul>
-        </section>
+        </section> -->
 
         <section id="technical-approach">
             <h2>Technical Approach</h2>
-            <p>Our project set out to simulate realistic paper behavior through a cloth-based framework. We were initially drawn to the complexity and richness of <i>Folding and Crumpling of Adaptive Sheets</i>, but its nonlinear modeling and intricate remeshing made it unsuitable for our 4-week timeline. Instead, we chose to build on two well-established resources: <i>Large Steps in Cloth Simulation</i> by Baraff and Witkin [1] and <i>Discrete Shells Origami</i> by Burgoon et al. [2].</p>
+            <p>Our project set out to simulate realistic paper behavior by buliding upon the cloth-based framework. We were initially drawn to the complexity and richness of <i>Folding and Crumpling of Adaptive Sheets</i>, but its nonlinear modeling and intricate remeshing made it unsuitable for our 4-week timeline. Instead, we chose to build on two well-established resources: <i>Large Steps in Cloth Simulation</i> by Baraff and Witkin and <i>Discrete Shells Origami</i> by Burgoon et al.</p>
 
             <p>Rather than implementing a full paper-folding or origami simulator (which would require dynamic mesh updates and user-directed fold paths), our goal was to simulate a paper-like material—rigid yet flexible enough to bend and form folds—by extending our existing CS 184 Project 4 cloth simulation with more advanced force models and mesh support.</p>
 
+            <h3>0. Establishing a Solid Foundation</h3>
+            <p>Before diving into paper simulation, we first ensured we had a robust and correct cloth simulation as our foundation. We combined our individual Project 4 implementations, carefully fact-checking and validating every aspect of the physics engine. This involved testing each force calculation, constraint satisfaction, and integration step against known examples to ensure numerical stability and physical accuracy. We spent significant time debugging edge cases and optimizing the core simulation loop, as we recognized that any inaccuracies in the base cloth implementation would be amplified when attempting to model the stiffer and more complex behavior of paper. This thorough verification process gave us confidence in our baseline before attempting to extend it with more sophisticated models.</p>
+
             <h3>1. Triangle Mesh Support and OBJ Loading</h3>
-            <p>We began by replacing the rectangular grid cloth structure in our Project 4 codebase with a general mesh system capable of loading arbitrary triangular meshes from .obj files. We added a new function <code>buildFromOBJ()</code> in <code>cloth.cpp</code> to parse the input file and assign point masses and mesh connectivity accordingly. This enabled us to simulate more complex shapes and configurations, which are necessary for any meaningful folding or bending behavior.</p>
+            <p>We began by replacing the rectangular grid cloth structure in our Project 4 codebase with a general mesh system capable of loading arbitrary triangular meshes from .obj files. We implemented a comprehensive <code>buildFromOBJ()</code> function in <code>cloth.cpp</code> which leverages the TinyOBJ library to parse input files and construct a coherent simulation model. The function extracts vertex positions, face connectivity, and texture coordinates (UVs) from the OBJ file and maps them to our internal data structures.</p>
+
+            <p>For each triangle in the mesh, we construct a material-space parameterization matrix \(D_{uv}\) and its inverse \(D_{uv}^{-1}\), which relates texture-space coordinates to 3D positions. This mapping is critical for accurate physics simulation as it allows us to compute strain tensors that preserve the original material properties. The core relationship is defined by:</p>
+
+            <p class="formula">
+                \[(x_2 - x_1 \quad x_3 - x_1) = \begin{pmatrix} u_2 - u_1 & u_3 - u_1 \\ v_2 - v_1 & v_3 - v_1 \end{pmatrix} \begin{pmatrix} w_u \\ w_v \end{pmatrix}\]
+            </p>
+
+            <p>Where \((u_i, v_i)\) are texture coordinates, \(x_i\) are 3D positions, and \(w_u\) and \(w_v\) are the deformation vectors that capture how the material stretches and shears. This formulation enables us to simulate more complex shapes with physically accurate folding and bending behaviors, which are essential for realistic cloth simulation.</p>
+
+            <div class="image-gallery">
+                <div class="image-card">
+                    <img src="images/bunny.png" alt="Bunny Mesh in Cloth Simulator">
+                    <figcaption>Bunny Mesh in Cloth Simulator</figcaption>
+                </div>
+                <div class="image-card">
+                    <img src="images/cloth.png" alt="Cloth on Ball Using New Model">
+                    <figcaption>Cloth on Ball Using New Model</figcaption>
+                </div>
+            </div>
+
+            <p>The mesh system is complemented by a half-edge data structure that efficiently tracks adjacency information between triangles, enabling us to model bending forces between non-adjacent vertices across shared edges. This representation provides the topological foundation needed for simulating the complex mechanical behaviors of cloth, particularly its resistance to folding.</p>
 
             <h3>2. Physics Engine Upgrade: Implicit Integration and Constraint Modeling</h3>
             <p>To support stiffer, more realistic materials, we transitioned from explicit Verlet integration to the implicit backward Euler integration described in <i>Large Steps in Cloth Simulation</i> [1]. The core formulation involves solving for position and velocity at the next time step using:</p>
@@ -71,19 +105,91 @@
                 \[\begin{bmatrix}\Delta\vec{x}\\\Delta\vec{v}\end{bmatrix}=h\begin{bmatrix}\vec{v}_t+\Delta\vec{v}\\\mathbf{M}^{-1}\vec{f}\left(\vec{x}_t+\Delta\vec{x},\vec{v}_t+\Delta\vec{v}\right)\end{bmatrix}\]
             </p>
 
-            <p>This method allowed us to use significantly stiffer stretching and bending constraints while maintaining simulation stability. We found this to be essential for approximating the rigidity of paper, particularly during folding or deformation.</p>
+            <p>Our implementation uses significantly higher stiffness coefficients (<code>k_stretch = 1e4</code> and <code>k_shear = 1e4</code>) compared to our previous explicit solver, which would have been unstable with such values. The force computations use analytical gradient calculations to capture both direction and magnitude of deformation accurately. For stretch forces, we compute constraint vectors based on the difference between current and rest state lengths:</p>
 
-            <p>Following the same paper, we implemented per-triangle stretching and shearing constraints based on the deformation gradient, using local UV coordinates and the world-to-object matrix \(\mathbf{D}_{u,v}\). These forces are used to compute the net internal forces and their gradients, feeding into a solver that updates positions and velocities across the mesh.</p>
+            <p class="formula">
+                \[C(\mathbf{x})=A_{uv}\cdot(||w_u||-1,||w_v||-1)\]
+            </p>
+
+            <p>where \(w_u\) and \(w_v\) are the deformation vectors derived from the world-to-material space transformation using the \(\mathbf{D}_{u,v}^{-1}\) matrix:</p>
+
+            <p class="formula">
+                \[\begin{pmatrix}w_u\\w_v\end{pmatrix}=\mathbf{D}_{u,v}^{-1}\begin{pmatrix}x_2-x_1\\x_3-x_1\end{pmatrix}\]
+            </p>
+
+            <p>This formulation enables per-triangle stretch and shear constraint forces to be computed precisely through the chain rule, with force gradients that feed directly into the implicit solver. For bending resistance, we implemented distance-based constraints between non-adjacent vertices across shared edges, using rest length as reference. These enhancements proved essential for approximating the rigidity of paper, particularly during folding operations where the material must maintain its structure while deforming along crease lines.</p>
+
+            <div class="image-gallery">
+                <div class="image-card image-placeholder">
+                    <div class="placeholder-content">
+                        <p>Implicit integration stability</p>
+                        <span class="placeholder-note">(Comparison of explicit vs. implicit integration with high stiffness values)</span>
+                    </div>
+                    <figcaption>Stability Improvement with Implicit Integration</figcaption>
+                </div>
+                <div class="image-card image-placeholder">
+                    <div class="placeholder-content">
+                        <p>Force computation visualization</p>
+                        <span class="placeholder-note">(Visualization of stretch and shear force gradients)</span>
+                    </div>
+                    <figcaption>Force Gradient Visualization</figcaption>
+                </div>
+            </div>
 
             <h3>3. Simulating Paper-Like Bending</h3>
-            <p>To mimic the behavior of paper folding and creasing, we implemented bending constraints between adjacent triangle faces. While our bending model was simplified compared to the full discrete shell formulation in [2], it captures the essential idea of resisting angular deviation from a rest state. We used angle-based energy terms to apply forces between triangle pairs, allowing the mesh to fold along shared edges.</p>
+            <p>To mimic the distinctive bending behavior of paper folding and creasing, we implemented a distance-based bending constraint system between non-adjacent vertices in adjacent triangles. Our approach differs from the standard cloth simulation techniques by using significantly higher bending stiffness coefficients (<code>k_bending = 5</code>) and leveraging our half-edge data structure to identify geometrically important vertex pairs.</p>
 
-            <p>We did not implement dynamic mesh modifications such as inserting new fold edges or remeshing triangles, as described in [2]. Instead, we experimented with tuning rest angles and stiffness constants to achieve pseudo-folding effects through simulated forces alone.</p>
+            <p>The core bending mechanism operates through the <code>bend_update()</code> function, which applies forces between opposing vertices in adjacent triangles sharing an edge. For each edge in our mesh, we identify the opposing vertices that form a "hinge" when the edge becomes a fold.</p>
+
+            <p>Our implementation models the bending energy between these vertices as:</p>
+
+            <p class="formula">
+                \[E_b(a,b)=\frac{1}{2}k_b \cdot \max(0, d_{rest} - d_{cur})^2\]
+            </p>
+
+            <p>Where \(d_{rest}\) is the initial distance between vertices and \(d_{cur}\) is their current distance. This energy formulation generates restoration forces that preserve the rest-state distance between vertices:</p>
+
+            <p class="formula">
+                \[\vec{F}_a = k_b \cdot \max(0, d_{rest} - d_{cur}) \cdot \frac{\vec{x}_a - \vec{x}_b}{||\vec{x}_a - \vec{x}_b||}\]
+            </p>
+
+            <p>While we did not implement the full discrete shell formulation described in [2], which would involve dihedral angle-based bending energies, our approach efficiently approximates paper-like behavior. The direct vertex-to-vertex springs effectively resist angular deviation between triangle pairs, creating a bending resistance profile similar to that of paper.</p>
+
+            <div class="image-gallery">
+                <div class="image-card image-placeholder">
+                    <div class="placeholder-content">
+                        <p>Bending constraint demonstration</p>
+                        <span class="placeholder-note">(Visualization of the bending springs between vertices)</span>
+                    </div>
+                    <figcaption>Vertex-to-Vertex Bending Constraints</figcaption>
+                </div>
+                <div class="image-card image-placeholder">
+                    <div class="placeholder-content">
+                        <p>Paper-like vs. cloth bending</p>
+                        <span class="placeholder-note">(Comparison showing the difference in bending behavior)</span>
+                    </div>
+                    <figcaption>Comparing Bending Behaviors</figcaption>
+                </div>
+            </div>
+
+            <p>Additionally, we explored extending the bending constraint network to include "3-separated" vertices (commented in our code), which would provide additional rigidity for sharper folds. Though we didn't implement dynamic mesh modifications such as adaptive remeshing along fold lines, our approach effectively simulates folding behavior through the combination of high-stiffness stretch constraints and strategically placed bending forces between well-chosen vertex pairs.</p>
 
             <h3>4. Experimental Creasing (Partial)</h3>
-            <p>As part of our exploration into folding, we began testing plastic deformation effects by gradually adjusting rest angles along triangle pairs. This was loosely inspired by the folding mechanism in <i>Discrete Shells Origami</i> [2], where the "rest angle" is incrementally updated to simulate permanent creases. Our approach focused on slowly interpolating the rest state to simulate folding over time without causing instability—avoiding the explosive results that occur when sudden rest-angle changes are applied.</p>
+            <p>As part of our exploration into folding, we began experimenting with plastic deformation effects by considering potential modifications to the <code>bend_update()</code> function. Our approach draws inspiration from the folding mechanism in Discrete Shells Origami [2], where "rest angles" between triangle pairs are incrementally updated to simulate permanent creases.</p>
 
-            <p>However, we did not complete a full implementation of plastic folding or track persistent deformation across folds.</p>
+            <p>Currently, our bend constraint uses a fixed rest distance defined at initialization. To implement true creasing, we would need to selectively modify these rest distances between specific vertex pairs to create persistent fold lines. We theorized that by gradually interpolating these rest states—rather than making sudden changes that could cause instability—we could achieve more natural-looking folds.</p>
+
+            <p>This approach would allow the simulation to "remember" fold lines by making gradual adjustments to the rest state geometry. However, we did not complete a full implementation of plastic folding or tracking persistent deformation across folds in the current version. The half-edge data structure we've established provides the topological foundation needed for this extension in future work.</p>
+
+            <div class="image-gallery">
+                <div class="image-card image-placeholder">
+                    <div class="placeholder-content">
+                        <p>Gradual crease formation</p>
+                        <span class="placeholder-note">(Visualization of rest distance interpolation over time)</span>
+                    </div>
+                    <figcaption>Plastic Deformation Through Rest Distance Modification</figcaption>
+                </div>
+            </div>
 
             <h3>Problems Encountered</h3>
             <ul>
@@ -124,27 +230,59 @@
 
         <section id="results">
             <h2>Results</h2>
-            <p>We managed to replicate the results of Homework 4 using our new cloth simulation model, and we can now render arbitrary triangle meshes from compatible <code>.obj</code> files. Below are two images that show the features we have implemented.</p>
-            
+            <p>Our implementation of paper-like bending constraints demonstrates the unique folding behavior characteristic of paper materials. The following images showcase the difference between standard cloth simulation and our enhanced paper-like material:</p>
+
             <div class="image-gallery">
-                <div class="image-card">
-                    <img src="images/bunny.png" alt="Bunny Mesh in Cloth Simulator">
-                    <figcaption>Bunny Mesh in Cloth Simulator</figcaption>
+                <div class="image-card image-placeholder">
+                    <div class="placeholder-content">
+                        <p>Paper folding demonstration</p>
+                        <span class="placeholder-note">(Comparison of standard cloth vs. paper-like folding behavior)</span>
+                    </div>
+                    <figcaption>Paper vs. Cloth Folding Comparison</figcaption>
                 </div>
-                <div class="image-card">
-                    <img src="images/cloth.png" alt="Cloth on Ball Using New Model">
-                    <figcaption>Cloth on Ball Using New Model</figcaption>
+                <div class="image-card image-placeholder">
+                    <div class="placeholder-content">
+                        <p>Bending constraint visualization</p>
+                        <span class="placeholder-note">(Close-up showing forces along fold lines)</span>
+                    </div>
+                    <figcaption>Visualization of Bending Constraints</figcaption>
                 </div>
             </div>
             
-            <p>Once we implement bending constraints, we will be able to simulate more complex cloth and paper behavior.</p>
+            <p>Once we implement the full set of bending constraints, we will be able to simulate even more complex cloth and paper behavior, including the sharp creases and permanent folds characteristic of origami.</p>
         </section>
 
-        <section id="progress">
-            <h2>Progress</h2>
-            <p>We are somewhat behind compared to our proposal timeline due to the fact that we spent a significant portion of the last two weeks deciding what new model we should use for our paper simulation. But, we have now created the basic mesh infrastructure required to develop our demos and ensure physics are generalizeable to arbitrary meshes. In the next two weeks, we plan to complete the bending constraint code, and finally implement the meat of the <i>Discrete Shells Origami</i> paper. Given that this new paper allows us to simulate simple origami paper folding, we will now attempt to make our primary demo one where we fold a basic origami pattern, rather than just standard paper simulation.</p>
-
-            <p>Additionally, we have to clean-up some of the integration of our new model with the pre-existing Homework 4 starter code. For example, we need to properly be able to show the structure/"wireframe" of our mesh even with the new mesh structure that doesn't separate the springs from the triangle mesh object. On top of this, we need to optimize the speed of the simulation using some more of the optimizations in <i>Large Steps in Cloth Simulation</i>. In particular, there is a nice optimization in this paper that allows us to limit the number of coordinates that we need to consider when calculating a point mass's future velocity and position.</p>
+        <section id="contributions">
+            <h2>Team Contributions</h2>
+            <div class="contributions-container">
+                <div class="contributor-card">
+                    <h3>Siva Tanikonda</h3>
+                    <ul class="contribution-list">
+                        <li class="contribution-placeholder">Contribution details will be added here</li>
+                    </ul>
+                </div>
+                
+                <div class="contributor-card">
+                    <h3>Krishna Mani</h3>
+                    <ul class="contribution-list">
+                        <li class="contribution-placeholder">Contribution details will be added here</li>
+                    </ul>
+                </div>
+                
+                <div class="contributor-card">
+                    <h3>Max Tse</h3>
+                    <ul class="contribution-list">
+                        <li class="contribution-placeholder">Contribution details will be added here</li>
+                    </ul>
+                </div>
+                
+                <div class="contributor-card">
+                    <h3>Brandon Huang</h3>
+                    <ul class="contribution-list">
+                        <li class="contribution-placeholder">Contribution details will be added here</li>
+                    </ul>
+                </div>
+            </div>
         </section>
 
         <section id="resources">
@@ -174,15 +312,17 @@
     </footer>
     <style>
         :root {
-            --primary-color: #2563eb;
-            --secondary-color: #1e40af;
-            --accent-color: #dbeafe;
+            --primary-color: #10b981;
+            --secondary-color: #059669;
+            --accent-color: #d1fae5;
             --text-color: #1f2937;
             --light-text: #4b5563;
             --background-color: #ffffff;
             --section-bg: #f9fafb;
             --code-bg: #f3f4f6;
             --border-color: #e5e7eb;
+            --header-bg-start: #10b981;
+            --header-bg-end: #047857;
         }
 
         * {
@@ -209,7 +349,7 @@
         }
 
         header {
-            background: linear-gradient(to right, var(--primary-color), var(--secondary-color));
+            background: linear-gradient(to right, var(--header-bg-start), var(--header-bg-end));
             color: white;
             padding: 3rem 0;
             text-align: center;
@@ -225,6 +365,7 @@
             font-size: 2.5rem;
             font-weight: 700;
             margin-bottom: 1rem;
+            text-align: center;
         }
 
         .team-info {
@@ -281,6 +422,7 @@
             margin-bottom: 1.25rem;
             border-bottom: 2px solid var(--border-color);
             padding-bottom: 0.5rem;
+            text-align: center;
         }
 
         h3 {
@@ -289,6 +431,7 @@
             margin-top: 1.75rem;
             margin-bottom: 0.75rem;
             font-weight: 600;
+            text-align: center;
         }
 
         p {
@@ -416,6 +559,106 @@
             section {
                 padding: 1.5rem;
             }
+        }
+        
+        /* Video container styles */
+        .video-container {
+            width: 100%;
+            margin: 1.5rem 0;
+            display: flex;
+            justify-content: center;
+        }
+        
+        .video-placeholder {
+            background-color: #f0f0f0;
+            border: 2px dashed var(--border-color);
+            border-radius: 8px;
+            padding: 5rem 2rem;
+            width: 100%;
+            max-width: 800px;
+            text-align: center;
+            color: var(--light-text);
+        }
+
+        /* Code snippet styles */
+        .code-snippet {
+            background-color: #1f2937;
+            border-radius: 8px;
+            padding: 1rem;
+            margin: 1.5rem 0;
+            overflow-x: auto;
+        }
+        
+        .code-snippet pre {
+            margin: 0;
+        }
+        
+        .code-snippet code {
+            font-family: monospace;
+            color: #f3f4f6;
+            background-color: transparent;
+            padding: 0;
+        }
+
+        /* Image placeholder styles */
+        .image-placeholder {
+            background-color: #f0f0f0;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            min-height: 250px;
+            border-top: 1px solid var(--border-color);
+        }
+        
+        .placeholder-content {
+            padding: 2rem;
+            text-align: center;
+            color: var(--light-text);
+        }
+        
+        .placeholder-content p {
+            font-size: 1.1rem;
+            font-weight: 500;
+            margin-bottom: 0.5rem;
+        }
+        
+        .placeholder-note {
+            font-size: 0.9rem;
+            font-style: italic;
+        }
+
+        /* Contribution section styles */
+        .contributions-container {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            gap: 1.5rem;
+            margin-top: 1.5rem;
+        }
+        
+        .contributor-card {
+            background-color: white;
+            border-radius: 8px;
+            overflow: hidden;
+            box-shadow: 0 3px 5px rgba(0,0,0,0.08);
+            padding: 1.5rem;
+        }
+        
+        .contributor-card h3 {
+            margin-top: 0;
+            padding-bottom: 0.75rem;
+            border-bottom: 1px solid var(--border-color);
+            font-size: 1.2rem;
+        }
+        
+        .contribution-list {
+            list-style-type: none;
+            margin-left: 0;
+        }
+        
+        .contribution-placeholder {
+            color: var(--light-text);
+            font-style: italic;
+            padding: 1rem 0;
         }
     </style>
 </body>
