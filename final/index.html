@@ -10,7 +10,7 @@
 <body>
     <header>
         <div class="header-content">
-            <h1>Paper Simulation: Milestone</h1>
+            <h1>Paper Simulation</h1>
             <div class="team-info">Siva Tanikonda, Krishna Mani, Max Tse, Brandon Huang (Team 16)</div>
             
             <div class="links-section">
@@ -21,7 +21,7 @@
                     <a href="https://youtu.be/uYZeY-sm8kY" target="_blank">Watch Video</a>
                 </div>
                 <div class="link-card">
-                    <a href="https://siva-tanikonda.github.io/cs184-paper-wp" target="_blank">Project Website</a>
+                    <a href="https://github.com/siva-tanikonda/cs184-paper" target="_blank">Project GitHub</a>
                 </div>
             </div>
         </div>
@@ -40,50 +40,37 @@
 
         <section id="abstract">
             <h2>Abstract</h2>
-            <p>This project explores the simulation of paper-like materials through cloth simulation techniques, focusing on achieving realistic folding and bending behaviors. Building upon the CS 184 Project 4 cloth simulation framework, we implemented a more robust physics engine based on implicit integration and enhanced constraint modeling. We replaced the rectangular grid structure with support for arbitrary triangle meshes loaded from OBJ files, and introduced specialized forces to approximate paper stiffness and bending resistance. While we initially planned to implement full origami folding capabilities, we strategically narrowed our scope to focus on the underlying physics of paper-like materials. Our approach successfully demonstrates that cloth simulation techniques can be adapted to model stiffer materials with realistic folding behavior without implementing complex remeshing or explicit fold creation.</p>
+            <p> This project explores the simulation of paper-like materials through cloth simulation techniques, focusing on achieving realistic folding and bending behaviors. Building upon the CS 184 Project 4 cloth simulation framework, we implemented a robust physics engine that addresses key stability challenges in material simulation. We replaced the rectangular grid structure with support for arbitrary triangle meshes loaded from OBJ files, and introduced specialized forces to approximate paper stiffness and bending resistance. To overcome stability issues with explicit Verlet integration, we implemented a semi-implicit Euler solver with TinyAD for automatic differentiation, enabling efficient computation of derivatives and Hessians for our constraint system. We enhanced realism through angle-based bending constraints and plastic deformation modeling. While we initially planned to implement full origami folding capabilities, we strategically narrowed our scope to focus on the underlying physics of paper-like materials. Our approach successfully demonstrates that cloth simulation techniques can be adapted to model stiffer materials with realistic folding behavior without implementing complex remeshing or explicit fold creation.</p>
+            
+            <div class="image-gallery">
+                <div class="image-card image-placeholder">
+                    <div class="placeholder-content">
+                        <p>Project overview image</p>
+                        <span class="placeholder-note">(A representative image or diagram of the paper simulation will go here)</span>
+                    </div>
+                    <figcaption>Project Overview Placeholder</figcaption>
+                </div>
+            </div>
         </section>
-
-        <!-- <section id="summary">
-            <h2>Summary</h2>
-            <p>After looking through the paper we planned to use in the proposal (<i>Folding and Crumpling of Adaptive Sheets</i>), we realized that the complexity of the paper was too high for us to reasonably complete the project within the 4-week timeframe. So, we spent some time finding an alternate, simpler implementation of paper simulation: <i>Discrete Shells Origami</i>. This paper required us to first implement a new cloth simulation/mesh framework outlined in another paper: <i>Large Steps in Cloth Simulation</i>. We decided to use our finished CS 184 Project 4 code as a base for our project, but with the following changes:</p>
-            
-            <ul>
-                <li>We added a system to load meshes from <code>.obj</code> files rather than simply having rectangular cloth. This also naturally resulted in the arrangement of springs being different from the Project 4 code. Instead of each spring being represented as a 3D line segment in our mesh, the springs are now not separate entities from the triangles, but rather, each triangle has its own constants for shearing, bending, and stretching forces.</li>
-                
-                <li>We changed the integrator from using Verlet integration to using the implicit integrator outlined in the <i>Large Steps in Cloth Simulation</i> paper. This integrator utilizes the below formula for calculating the next position and velocity of our point masses.
-                \[\begin{bmatrix}\Delta\vec{x}\\\Delta\vec{v}\end{bmatrix}=h\begin{bmatrix}\vec{v}_t+\Delta\vec{v}\\\mathbf{M}^{-1}\vec{f}\left(\vec{x}_t+\Delta\vec{x},\vec{v}_t+\Delta\vec{v}\right)\end{bmatrix}\]
-                where \(\vec{f}(\cdot,\cdot)\) is the force vector at a given position and velocity, \(\mathbf{M}\) is a matrix that maps an acceleration vector to a net force vector applied to the point mass, \(t\) represents our current timestep, and \(t+h\) represents the next timestep. Another key benefit of this simulation technique is that it runs faster than typical explicit integrators (this result is outlined in the paper).</li>
-            </ul>
-            
-            <p>So far, we have implemented stretch and shearing constraint springs in our mesh, but have yet to handle bending constraints. In order to begin working on simulating paper, we need to implement the bending constraints.</p>
-
-            <p>To be more specific, here are the changes we made to the Project 4 code:</p>
-            <ul>
-                <li>We added a function <code>buildFromOBJ()</code> to <code>cloth.cpp</code> to load an arbitrary <code>.obj</code> file and place point masses according to the file's mesh structure.</li>
-                <li>We created the new files <code>physics.cpp</code> and <code>physics.h</code> that calculate stretch constraints and shearing constraints for each triangle in our mesh. The implementation is outlined in the <i>Large Steps in Cloth Simulation</i> paper.</li>
-                <li>We changed <code>buildClothMesh()</code> in <code>cloth.cpp</code> to build our cloth mesh according to the mesh constructed by <code>buildFromOBJ()</code>. In this function, we also constructed a world-to-object space matrix \(\mathbf{D}_{u,v}\) for each triangle, which we use in our stretch and shear constraint calculations.</li>
-            </ul>
-        </section> -->
 
         <section id="technical-approach">
             <h2>Technical Approach</h2>
-            <p>Our project set out to simulate realistic paper behavior by buliding upon the cloth-based framework. We were initially drawn to the complexity and richness of <i>Folding and Crumpling of Adaptive Sheets</i>, but its nonlinear modeling and intricate remeshing made it unsuitable for our 4-week timeline. Instead, we chose to build on two well-established resources: <i>Large Steps in Cloth Simulation</i> by Baraff and Witkin and <i>Discrete Shells Origami</i> by Burgoon et al.</p>
 
-            <p>Rather than implementing a full paper-folding or origami simulator (which would require dynamic mesh updates and user-directed fold paths), our goal was to simulate a paper-like material—rigid yet flexible enough to bend and form folds—by extending our existing CS 184 Project 4 cloth simulation with more advanced force models and mesh support.</p>
+            <p>Our project set out to simulate realistic paper behavior by building upon a cloth-based simulation framework. While we were initially inspired by the complexity and richness of the "Folding and Crumpling of Adaptive Sheets" paper, its highly nonlinear modeling and intricate remeshing requirements proved impractical for our four-week timeline. Instead, we grounded our approach in two well-established resources: "Large Steps in Cloth Simulation" by Baraff and Witkin, and "Discrete Shells Origami" by Burgoon et al. Rather than implementing a full paper-folding or origami simulator—which would require dynamic mesh updates and user-directed fold paths—we focused on simulating the essential physical properties of paper: a material that is rigid yet flexible enough to bend and form creases. To achieve this, we extended our CS 184 Project 4 cloth simulation with support for arbitrary triangle meshes, more advanced force and constraint models, and improved numerical stability, enabling us to capture the unique behaviors of paper-like materials.</p>
 
             <h3>0. Establishing a Solid Foundation</h3>
             <p>Before diving into paper simulation, we first ensured we had a robust and correct cloth simulation as our foundation. We combined our individual Project 4 implementations, carefully fact-checking and validating every aspect of the physics engine. This involved testing each force calculation, constraint satisfaction, and integration step against known examples to ensure numerical stability and physical accuracy. We spent significant time debugging edge cases and optimizing the core simulation loop, as we recognized that any inaccuracies in the base cloth implementation would be amplified when attempting to model the stiffer and more complex behavior of paper. This thorough verification process gave us confidence in our baseline before attempting to extend it with more sophisticated models.</p>
 
             <h3>1. Triangle Mesh Support and OBJ Loading</h3>
-            <p>We began by replacing the rectangular grid cloth structure in our Project 4 codebase with a general mesh system capable of loading arbitrary triangular meshes from .obj files. We implemented a comprehensive <code>buildFromOBJ()</code> function in <code>cloth.cpp</code> which leverages the TinyOBJ library to parse input files and construct a coherent simulation model. The function extracts vertex positions, face connectivity, and texture coordinates (UVs) from the OBJ file and maps them to our internal data structures.</p>
+            <p>We began by replacing the rectangular grid cloth structure in our Project 4 codebase with a general mesh system capable of loading arbitrary triangular meshes from .obj files. We implemented a comprehensive buildFromOBJ() function in cloth.cpp, leveraging the TinyOBJ library to parse input files and construct a coherent simulation model. This function extracts vertex positions, face connectivity, and texture coordinates (UVs) from the OBJ file and maps them to our internal data structures.</p>
 
-            <p>For each triangle in the mesh, we construct a material-space parameterization matrix \(D_{uv}\) and its inverse \(D_{uv}^{-1}\), which relates texture-space coordinates to 3D positions. This mapping is critical for accurate physics simulation as it allows us to compute strain tensors that preserve the original material properties. The core relationship is defined by:</p>
+            <p>For each triangle in the mesh, we construct a material-space parameterization matrix \(D_{uv}\) and its inverse \(D_{uv}^{-1}\), which relate texture-space coordinates to 3D positions. This mapping is critical for accurate physics simulation, as it allows us to compute deformation gradients and strain tensors that preserve the original material properties. The core relationship is defined by:</p>
 
             <p class="formula">
                 \[(x_2 - x_1 \quad x_3 - x_1) = \begin{pmatrix} u_2 - u_1 & u_3 - u_1 \\ v_2 - v_1 & v_3 - v_1 \end{pmatrix} \begin{pmatrix} w_u \\ w_v \end{pmatrix}\]
             </p>
 
-            <p>Where \((u_i, v_i)\) are texture coordinates, \(x_i\) are 3D positions, and \(w_u\) and \(w_v\) are the deformation vectors that capture how the material stretches and shears. This formulation enables us to simulate more complex shapes with physically accurate folding and bending behaviors, which are essential for realistic cloth simulation.</p>
+            <p>Where \((u_i, v_i)\) are texture coordinates, \(x_i\) are 3D positions, and \(w_u\) and \(w_v\) are the 3D directions corresponding to the local \((u, v)\) axes in material space. This formulation enables us to simulate more complex shapes with physically accurate folding and bending behaviors, which are essential for realistic cloth simulation.</p>
 
             <div class="image-gallery">
                 <div class="image-card">
@@ -98,62 +85,215 @@
 
             <p>The mesh system is complemented by a half-edge data structure that efficiently tracks adjacency information between triangles, enabling us to model bending forces between non-adjacent vertices across shared edges. This representation provides the topological foundation needed for simulating the complex mechanical behaviors of cloth, particularly its resistance to folding.</p>
 
-            <h3>2. Physics Engine Upgrade: Implicit Integration and Constraint Modeling</h3>
-            <p>To support stiffer, more realistic materials, we transitioned from explicit Verlet integration to the implicit backward Euler integration described in <i>Large Steps in Cloth Simulation</i> [1]. The core formulation involves solving for position and velocity at the next time step using:</p>
-
-            <p class="formula">
-                \[\begin{bmatrix}\Delta\vec{x}\\\Delta\vec{v}\end{bmatrix}=h\begin{bmatrix}\vec{v}_t+\Delta\vec{v}\\\mathbf{M}^{-1}\vec{f}\left(\vec{x}_t+\Delta\vec{x},\vec{v}_t+\Delta\vec{v}\right)\end{bmatrix}\]
+            <h3>2. Implementing Stiffer Constraints for Paper-Like Behavior</h3>
+            <p>
+                To accurately capture the rigidity and resistance to stretching and bending that characterize paper, we extended our simulation with much stiffer physical constraints, drawing on techniques from "Large Steps in Cloth Simulation" by Baraff and Witkin. We increased the stiffness parameters for both stretching and shearing forces, making the material far less prone to deformation under load. Additionally, we introduced bending constraints based on the dihedral angles between adjacent triangles, penalizing deviations from the rest configuration to resist unwanted flexing. By carefully tuning these parameters, our system can represent materials that are significantly less flexible than traditional cloth, allowing sharp folds and creases to emerge naturally. This enables the simulation to reproduce the unique mechanical properties of paper, such as its ability to hold shape and form crisp bends, without the need for complex remeshing or explicit fold tracking.
             </p>
 
-            <p>Our implementation uses significantly higher stiffness coefficients (<code>k_stretch = 1e4</code> and <code>k_shear = 1e4</code>) compared to our previous explicit solver, which would have been unstable with such values. The force computations use analytical gradient calculations to capture both direction and magnitude of deformation accurately. For stretch forces, we compute constraint vectors based on the difference between current and rest state lengths:</p>
-
+            <h3>3. Limitations of Explicit Verlet Integration</h3>
+            <p>
+                To support stiffer, more realistic materials, we transitioned from explicit Verlet integration to an implicit backward Euler integration scheme, as described in <i>Large Steps in Cloth Simulation</i> [1]. The core formulation involves solving for position and velocity at the next time step by implicitly integrating the forces, which allows for much larger stiffness values without numerical instability. The update step can be summarized as:
+            </p>
             <p class="formula">
-                \[C(\mathbf{x})=A_{uv}\cdot(||w_u||-1,||w_v||-1)\]
+                \[
+                \begin{bmatrix}
+                \Delta\vec{x} \\
+                \Delta\vec{v}
+                \end{bmatrix}
+                = h
+                \begin{bmatrix}
+                \vec{v}_t + \Delta\vec{v} \\
+                \mathbf{M}^{-1}\vec{f}\left(\vec{x}_t+\Delta\vec{x}, \vec{v}_t+\Delta\vec{v}\right)
+                \end{bmatrix}
+                \]
+            </p>
+            <p>
+                where \(h\) is the timestep, \(\mathbf{M}\) is the mass matrix, and \(\vec{f}\) is the force vector derived from the energy gradients.
+            </p>
+            <p>
+                Our implementation uses significantly higher stiffness coefficients (\(k_\text{stretch} = 1.5 \times 10^5\) and \(k_\text{shear} = 1.5 \times 10^5\)) compared to what would be possible with an explicit solver, which would become unstable for such values. By leveraging automatic differentiation, we compute analytical gradients and Hessians of the energy, enabling the implicit solver to accurately capture both the direction and magnitude of deformations.
+            </p>
+            <p>
+                For stretch forces, we compute constraint vectors based on the difference between the current and rest state edge lengths for each triangle:
+            </p>
+            <p class="formula">
+                \[
+                C(\mathbf{x}) = A_{uv} \cdot (||\mathbf{w}_u|| - 1,\, ||\mathbf{w}_v|| - 1)
+                \]
+            </p>
+            <p>
+                where \(\mathbf{w}_u\) and \(\mathbf{w}_v\) are the deformation vectors in 3D, derived from the world-to-material space transformation using the inverse UV parameterization matrix:
+            </p>
+            <p class="formula">
+                \[
+                \begin{pmatrix}
+                \mathbf{w}_u \\
+                \mathbf{w}_v
+                \end{pmatrix}
+                = \mathbf{D}_{uv}^{-1}
+                \begin{pmatrix}
+                \mathbf{x}_2 - \mathbf{x}_1 \\
+                \mathbf{x}_3 - \mathbf{x}_1
+                \end{pmatrix}
+                \]
+            </p>
+            <p>
+                This formulation enables per-triangle stretch and shear constraint forces to be computed precisely, with their gradients feeding directly into the implicit solver. For bending resistance, we use constraints based on the dihedral angle between adjacent triangles, penalizing deviations from the rest angle to model the rigidity of paper. These enhancements are essential for simulating the sharp folds and structural integrity of paper, especially during folding operations where the material must maintain its shape while deforming along crease lines.
             </p>
 
-            <p>where \(w_u\) and \(w_v\) are the deformation vectors derived from the world-to-material space transformation using the \(\mathbf{D}_{u,v}^{-1}\) matrix:</p>
+            <div class="image-gallery">
+                <div class="image-card image-placeholder">
+                    <div class="placeholder-content">
+                        <p>Integration stability comparison</p>
+                        <span class="placeholder-note">(Comparison of explicit Verlet and implicit integration stability for stiff materials)</span>
+                    </div>
+                    <figcaption>Explicit vs. Implicit Integration Stability</figcaption>
+                </div>
+            </div>
 
+            <h3>4. Automatic Differentiation with TinyAD</h3>
+            <p>
+                To efficiently and accurately compute the gradients and Hessians required for implicit integration, we integrated the TinyAD automatic differentiation library into our simulation pipeline. TinyAD allows us to define the total energy of the system as a sum of per-element energy terms (stretching, shearing, and bending), and then automatically computes the first and second derivatives with respect to all vertex positions. This is crucial for the implicit solver, which requires both the gradient (force) and the Hessian (stiffness matrix) of the energy function at each time step.
+            </p>
+            <p>
+                The total energy of the system is defined as:
+            </p>
             <p class="formula">
-                \[\begin{pmatrix}w_u\\w_v\end{pmatrix}=\mathbf{D}_{u,v}^{-1}\begin{pmatrix}x_2-x_1\\x_3-x_1\end{pmatrix}\]
+                \[
+                E(\mathbf{x}) = \sum_{\text{elements}} E_{\text{stretch/shear}}(\mathbf{x}) + \sum_{\text{edges}} E_{\text{bend}}(\mathbf{x}) + \sum_i E_{\text{gravity}}(\mathbf{x}_i)
+                \]
+            </p>
+            <p>
+                At each simulation step, TinyAD is used to compute:
+            </p>
+            <ul>
+                <li>
+                    The <strong>gradient</strong> of the energy, \(\nabla E(\mathbf{x})\), which gives the force vector.
+                </li>
+                <li>
+                    The <strong>Hessian</strong> of the energy, \(\nabla^2 E(\mathbf{x})\), which gives the stiffness matrix.
+                </li>
+            </ul>
+            <p>
+                These derivatives are then used in the implicit Euler integration scheme to solve for the updated positions and velocities:
+            </p>
+            <p class="formula">
+                \[
+                \mathbf{M} \Delta \vec{v} = -\nabla E(\mathbf{x}) - h \nabla^2 E(\mathbf{x}) \Delta \vec{v}
+                \]
+            </p>
+            <p>
+                By leveraging TinyAD, we avoid the need for manual and error-prone derivative calculations, enabling robust and efficient simulation of highly stiff, paper-like materials.
             </p>
 
-            <p>This formulation enables per-triangle stretch and shear constraint forces to be computed precisely through the chain rule, with force gradients that feed directly into the implicit solver. For bending resistance, we implemented distance-based constraints between non-adjacent vertices across shared edges, using rest length as reference. These enhancements proved essential for approximating the rigidity of paper, particularly during folding operations where the material must maintain its structure while deforming along crease lines.</p>
+            <div class="image-gallery">
+                <div class="image-card image-placeholder">
+                    <div class="placeholder-content">
+                        <p>TinyAD in action</p>
+                        <span class="placeholder-note">(Visualization of TinyAD computing gradients and Hessians for energy terms)</span>
+                    </div>
+                    <figcaption>TinyAD Gradient and Hessian Computation</figcaption>
+                </div>
+            </div>
+
+            <h3>5. Constraint Implementation in TinyAD</h3>
+            <p>
+                To model the physical behavior of paper-like materials, we implemented all major constraints—stretching, shearing, and bending—directly within the TinyAD automatic differentiation framework. Each constraint is formulated as an energy term that penalizes deviations from the rest configuration, and TinyAD is used to automatically compute the required gradients and Hessians for the implicit solver.
+            </p>
+            <p>
+                For each triangle, the <strong>stretching and shearing constraints</strong> are encoded as:
+            </p>
+            <p class="formula">
+                \[
+                E_{\text{stretch/shear}}(\mathbf{x}) = -\frac{1}{2}k_{\text{stretch}} \|C_{\text{stretch}}(\mathbf{x})\|^2 - \frac{1}{2}k_{\text{shear}} C_{\text{shear}}(\mathbf{x})^2
+                \]
+            </p>
+            <p>
+                where the constraint vectors are defined as:
+            </p>
+            <p class="formula">
+                \[
+                C_{\text{stretch}}(\mathbf{x}) = A_{uv} \cdot ( \| \mathbf{w}_u \| - 1,\, \| \mathbf{w}_v \| - 1 )
+                \]
+                <br>
+                \[
+                C_{\text{shear}}(\mathbf{x}) = A_{uv} \cdot ( \mathbf{w}_u \cdot \mathbf{w}_v )
+                \]
+            </p>
+            <p>
+                with \(\mathbf{w}_u\) and \(\mathbf{w}_v\) computed from the world-to-material transformation.
+            </p>
+            <p>
+                For each pair of adjacent triangles, the <strong>bending constraint</strong> is encoded as:
+            </p>
+            <p class="formula">
+                \[
+                E_{\text{bend}}(\mathbf{x}) = -\frac{1}{2}k_{\text{bend}} \cdot (\theta - \theta_0)^2 \cdot \frac{\ell}{h}
+                \]
+            </p>
+            <p>
+                where \(\theta\) is the current dihedral angle, \(\theta_0\) is the rest angle, \(\ell\) is the length of the shared edge, and \(h\) is a normalization factor.
+            </p>
+            <p>
+                By expressing all constraints as energy terms within TinyAD, we enable the system to automatically and efficiently compute the necessary derivatives for stable and accurate simulation, even with highly stiff materials.
+            </p>
+
+            <div class="image-gallery">
+                <div class="image-card image-placeholder">
+                    <div class="placeholder-content">
+                        <p>Constraint energy terms</p>
+                        <span class="placeholder-note">(Diagram of stretch, shear, and bending constraints as energy terms in TinyAD)</span>
+                    </div>
+                    <figcaption>Constraint Energy Terms in TinyAD</figcaption>
+                </div>
+            </div>
+
+            <h3>6. Switch to Semi-Implicit Euler Integration</h3>
+            <p>
+                To achieve stable simulation of highly stiff, paper-like materials, we replaced the explicit Verlet integration scheme with a semi-implicit (backward) Euler integrator. This approach, inspired by <i>Large Steps in Cloth Simulation</i>, allows for much larger time steps and higher constraint stiffness without numerical instability. In the semi-implicit Euler method, velocities are updated using the forces computed at the next (unknown) positions, and then positions are updated using these new velocities.
+            </p>
+            <p>
+                The update equations for each time step are:
+            </p>
+            <p class="formula">
+                \[
+                \mathbf{v}_{t+1} = \mathbf{v}_t + h \mathbf{M}^{-1} \mathbf{f}(\mathbf{x}_{t+1}, \mathbf{v}_{t+1})
+                \]
+                <br>
+                \[
+                \mathbf{x}_{t+1} = \mathbf{x}_t + h \mathbf{v}_{t+1}
+                \]
+            </p>
+            <p>
+                where:
+            </p>
+            <ul>
+                <li><strong>\(\mathbf{x}\)</strong> and <strong>\(\mathbf{v}\)</strong> are the positions and velocities,</li>
+                <li><strong>\(h\)</strong> is the time step,</li>
+                <li><strong>\(\mathbf{M}\)</strong> is the mass matrix,</li>
+                <li><strong>\(\mathbf{f}\)</strong> is the force vector (the negative gradient of the total energy).</li>
+            </ul>
+            <p>
+                In practice, this requires solving a linear system at each time step, which incorporates both the gradient and Hessian of the energy function (computed via TinyAD). This implicit integration scheme is essential for simulating the sharp, stable folds and creases characteristic of paper, as it prevents the simulation from diverging even under very stiff constraints.
+            </p>
 
             <div class="image-gallery">
                 <div class="image-card image-placeholder">
                     <div class="placeholder-content">
                         <p>Implicit integration stability</p>
-                        <span class="placeholder-note">(Comparison of explicit vs. implicit integration with high stiffness values)</span>
+                        <span class="placeholder-note">(Comparison of explicit Verlet and implicit integration stability for stiff materials)</span>
                     </div>
-                    <figcaption>Stability Improvement with Implicit Integration</figcaption>
-                </div>
-                <div class="image-card image-placeholder">
-                    <div class="placeholder-content">
-                        <p>Force computation visualization</p>
-                        <span class="placeholder-note">(Visualization of stretch and shear force gradients)</span>
-                    </div>
-                    <figcaption>Force Gradient Visualization</figcaption>
+                    <figcaption>Implicit Integration Stability</figcaption>
                 </div>
             </div>
 
-            <h3>3. Simulating Paper-Like Bending</h3>
-            <p>To mimic the distinctive bending behavior of paper folding and creasing, we implemented a distance-based bending constraint system between non-adjacent vertices in adjacent triangles. Our approach differs from the standard cloth simulation techniques by using significantly higher bending stiffness coefficients (<code>k_bending = 5</code>) and leveraging our half-edge data structure to identify geometrically important vertex pairs.</p>
-
-            <p>The core bending mechanism operates through the <code>bend_update()</code> function, which applies forces between opposing vertices in adjacent triangles sharing an edge. For each edge in our mesh, we identify the opposing vertices that form a "hinge" when the edge becomes a fold.</p>
-
-            <p>Our implementation models the bending energy between these vertices as:</p>
-
-            <p class="formula">
-                \[E_b(a,b)=\frac{1}{2}k_b \cdot \max(0, d_{rest} - d_{cur})^2\]
+            <h3>7. Angle-Based Bending Constraints</h3>
+            <p>
+                To mimic the distinctive bending behavior of paper folding and creasing, we implemented a dihedral angle-based bending constraint system between adjacent triangles sharing an edge. This approach, inspired by discrete shell models, is more physically accurate than simple distance-based springs and is essential for capturing the rigidity and sharp folds characteristic of paper. By using significantly higher bending stiffness coefficients, our simulation resists unwanted flexing and allows for the formation of stable creases.
             </p>
-
-            <p>Where \(d_{rest}\) is the initial distance between vertices and \(d_{cur}\) is their current distance. This energy formulation generates restoration forces that preserve the rest-state distance between vertices:</p>
-
-            <p class="formula">
-                \[\vec{F}_a = k_b \cdot \max(0, d_{rest} - d_{cur}) \cdot \frac{\vec{x}_a - \vec{x}_b}{||\vec{x}_a - \vec{x}_b||}\]
+            <p>
+                For each internal edge, we compute the dihedral angle between the two adjacent triangles and penalize deviations from the rest angle, as described in our bending energy formulation (see Step 5). The resulting forces, computed automatically via TinyAD, ensure that the material maintains its structure while allowing for realistic folding behavior. This enables our simulation to reproduce the sharp, stable folds and overall rigidity observed in real paper.
             </p>
-
-            <p>While we did not implement the full discrete shell formulation described in [2], which would involve dihedral angle-based bending energies, our approach efficiently approximates paper-like behavior. The direct vertex-to-vertex springs effectively resist angular deviation between triangle pairs, creating a bending resistance profile similar to that of paper.</p>
 
             <div class="image-gallery">
                 <div class="image-card image-placeholder">
@@ -174,12 +314,28 @@
 
             <p>Additionally, we explored extending the bending constraint network to include "3-separated" vertices (commented in our code), which would provide additional rigidity for sharper folds. Though we didn't implement dynamic mesh modifications such as adaptive remeshing along fold lines, our approach effectively simulates folding behavior through the combination of high-stiffness stretch constraints and strategically placed bending forces between well-chosen vertex pairs.</p>
 
-            <h3>4. Experimental Creasing (Partial)</h3>
-            <p>As part of our exploration into folding, we began experimenting with plastic deformation effects by considering potential modifications to the <code>bend_update()</code> function. Our approach draws inspiration from the folding mechanism in Discrete Shells Origami [2], where "rest angles" between triangle pairs are incrementally updated to simulate permanent creases.</p>
-
-            <p>Currently, our bend constraint uses a fixed rest distance defined at initialization. To implement true creasing, we would need to selectively modify these rest distances between specific vertex pairs to create persistent fold lines. We theorized that by gradually interpolating these rest states—rather than making sudden changes that could cause instability—we could achieve more natural-looking folds.</p>
-
-            <p>This approach would allow the simulation to "remember" fold lines by making gradual adjustments to the rest state geometry. However, we did not complete a full implementation of plastic folding or tracking persistent deformation across folds in the current version. The half-edge data structure we've established provides the topological foundation needed for this extension in future work.</p>
+            <h3>8. Implementing Plastic Deformation</h3>
+            <p>
+                To further enhance the realism of our paper simulation, we introduced a simple model of plastic deformation for bending. In real paper, repeated folding or excessive bending can cause permanent creases, where the material no longer returns to its original flat state. To capture this effect, we allow the rest dihedral angle (\(\theta_0\)) between adjacent triangles to update when the bending exceeds a certain threshold.
+            </p>
+            <p>
+                Specifically, during each simulation step, if the absolute difference between the current dihedral angle (\(\theta\)) and the rest angle (\(\theta_0\)) exceeds a plasticity threshold (\(\delta_\text{plastic}\)), we update the rest angle to partially "follow" the current angle:
+            </p>
+            <p class="formula">
+                \[
+                \theta_0 \leftarrow (1 - \alpha)\theta_0 + \alpha\theta
+                \]
+            </p>
+            <p>
+                where:
+            </p>
+            <ul>
+                <li><strong>\(\alpha\)</strong> is a small plasticity rate (e.g., 0.1),</li>
+                <li>The update is only applied if \(|\theta - \theta_0| > \delta_\text{plastic}\).</li>
+            </ul>
+            <p>
+                This mechanism allows the simulated paper to develop permanent creases after repeated or extreme folding, closely mimicking the behavior of real paper. By combining this plasticity model with our high-stiffness constraints, our simulation can represent both the elastic and inelastic responses of paper during folding and manipulation.
+            </p>
 
             <div class="image-gallery">
                 <div class="image-card image-placeholder">
@@ -190,8 +346,30 @@
                     <figcaption>Plastic Deformation Through Rest Distance Modification</figcaption>
                 </div>
             </div>
+        </section>
 
-            <h3>Problems Encountered</h3>
+        <section id="results">
+            <h2>Results</h2>
+            <div class="image-gallery">
+                <div class="image-card image-placeholder">
+                    <div class="placeholder-content">
+                        <p>Paper folding demonstration</p>
+                        <span class="placeholder-note">(Comparison of standard cloth vs. paper-like folding behavior)</span>
+                    </div>
+                    <figcaption>Paper vs. Cloth Folding Comparison</figcaption>
+                </div>
+                <div class="image-card image-placeholder">
+                    <div class="placeholder-content">
+                        <p>Bending constraint visualization</p>
+                        <span class="placeholder-note">(Close-up showing forces along fold lines)</span>
+                    </div>
+                    <figcaption>Visualization of Bending Constraints</figcaption>
+                </div>
+            </div>
+        </section>
+
+        <section id="problems-encountered">
+            <h2>Problems Encountered</h2>
             <ul>
                 <li>
                     <strong>Omission of Shear Constraints Led to Distortion</strong>
@@ -206,8 +384,10 @@
                     <p>Sharp changes to bending rest angles caused the mesh to oscillate or break. Inspired by [2], we introduced time-based interpolation of rest angles to fold gradually, improving stability.</p>
                 </li>
             </ul>
+        </section>
 
-            <h3>Lessons Learned</h3>
+        <section id="lessons-learned">
+            <h2>Lessons Learned</h2>
             <ul>
                 <li>
                     <strong>Shear Forces Are Not Optional in Triangle Meshes</strong>
@@ -228,28 +408,25 @@
             </ul>
         </section>
 
-        <section id="results">
-            <h2>Results</h2>
-            <p>Our implementation of paper-like bending constraints demonstrates the unique folding behavior characteristic of paper materials. The following images showcase the difference between standard cloth simulation and our enhanced paper-like material:</p>
-
-            <div class="image-gallery">
-                <div class="image-card image-placeholder">
-                    <div class="placeholder-content">
-                        <p>Paper folding demonstration</p>
-                        <span class="placeholder-note">(Comparison of standard cloth vs. paper-like folding behavior)</span>
-                    </div>
-                    <figcaption>Paper vs. Cloth Folding Comparison</figcaption>
-                </div>
-                <div class="image-card image-placeholder">
-                    <div class="placeholder-content">
-                        <p>Bending constraint visualization</p>
-                        <span class="placeholder-note">(Close-up showing forces along fold lines)</span>
-                    </div>
-                    <figcaption>Visualization of Bending Constraints</figcaption>
-                </div>
-            </div>
-            
-            <p>Once we implement the full set of bending constraints, we will be able to simulate even more complex cloth and paper behavior, including the sharp creases and permanent folds characteristic of origami.</p>
+        <section id="resources">
+            <h2>Resources</h2>
+            <ul class="resources-list">
+                <li>
+                    <span class="resource-type">(Paper)</span> Discrete Shells Origami: 
+                    <a href="https://www.cs.columbia.edu/cg/pdfs/115-origami-CATA-2006.pdf" target="_blank">cs.columbia.edu/cg/pdfs/115-origami-CATA-2006.pdf</a>
+                </li>
+                <li>
+                    <span class="resource-type">(Paper)</span> Large Steps in Cloth Simulation: 
+                    <a href="https://www.cs.cmu.edu/~baraff/papers/sig98.pdf" target="_blank">cs.cmu.edu/~baraff/papers/sig98.pdf</a>
+                </li>
+                <li>
+                    <span class="resource-type">(Library)</span> CGL Vectors Library: 
+                    <a href="https://cs184.eecs.berkeley.edu/sp25/resources/cgl-vector-docs/" target="_blank">cs184.eecs.berkeley.edu/sp25/resources/cgl-vector-docs/</a>
+                </li>
+                <li>
+                    <span class="resource-type">(Code)</span> CS 184 Project 4 Starter Code
+                </li>
+            </ul>
         </section>
 
         <section id="contributions">
@@ -283,27 +460,6 @@
                     </ul>
                 </div>
             </div>
-        </section>
-
-        <section id="resources">
-            <h2>Resources</h2>
-            <ul class="resources-list">
-                <li>
-                    <span class="resource-type">(Paper)</span> Discrete Shells Origami: 
-                    <a href="https://www.cs.columbia.edu/cg/pdfs/115-origami-CATA-2006.pdf" target="_blank">cs.columbia.edu/cg/pdfs/115-origami-CATA-2006.pdf</a>
-                </li>
-                <li>
-                    <span class="resource-type">(Paper)</span> Large Steps in Cloth Simulation: 
-                    <a href="https://www.cs.cmu.edu/~baraff/papers/sig98.pdf" target="_blank">cs.cmu.edu/~baraff/papers/sig98.pdf</a>
-                </li>
-                <li>
-                    <span class="resource-type">(Library)</span> CGL Vectors Library: 
-                    <a href="https://cs184.eecs.berkeley.edu/sp25/resources/cgl-vector-docs/" target="_blank">cs184.eecs.berkeley.edu/sp25/resources/cgl-vector-docs/</a>
-                </li>
-                <li>
-                    <span class="resource-type">(Code)</span> CS 184 Project 4 Starter Code
-                </li>
-            </ul>
         </section>
     </div>
 
