@@ -236,8 +236,13 @@
             </p>
             <p>
                 To stabilize the simulation without overdamping, we implemented damping forces aligned with each deformation mode: stretch, shear, and bend. We compute damping as a function of the rate of change of each constraint condition,
-                applying damping only in the directions that contribute to deformation. This avoids penalizing rigid-body motion and helps prevent oscillations in stiff materials like paper.
+                applying damping only in the directions that contribute to deformation. This avoids penalizing rigid-body motion and helps prevent oscillations in stiff materials like paper. The damping force d with a condition C is calculated as: 
             </p>
+            <p class="formula">
+                \[
+                \mathbf{d} = -k_d \frac{\partial C(x)}{\partial x} \cdot \dot{C}(x)
+                \]
+                </p>
             <p>
                 By expressing all constraints as energy terms within TinyAD, we enable the system to automatically and efficiently compute the necessary derivatives for stable and accurate simulation, even with highly stiff materials.
             </p>
