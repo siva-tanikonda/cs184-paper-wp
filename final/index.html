@@ -237,6 +237,10 @@
             <p>
                 By expressing all constraints as energy terms within TinyAD, we enable the system to automatically and efficiently compute the necessary derivatives for stable and accurate simulation, even with highly stiff materials.
             </p>
+            <p>
+                To stabilize the simulation without overdamping, we implemented damping forces aligned with each deformation mode: stretch, shear, and bend. We compute damping as a function of the rate of change of each constraint condition,
+                applying damping only in the directions that contribute to deformation. This avoids penalizing rigid-body motion and helps prevent oscillations in stiff materials like paper.
+            </p>
 
             <div class="image-gallery">
                 <div class="image-card image-placeholder">
