@@ -18,11 +18,14 @@
                     <a href="https://docs.google.com/presentation/d/1yIHME1xWUIVmAh0gro_sDaUwCUG_WDbD6PqC_b9UnzE/edit?slide=id.g3540527368d_0_0#slide=id.g3540527368d_0_0" target="_blank">View Slides</a>
                 </div>
                 <div class="link-card">
-                    <a href="https://youtu.be/uYZeY-sm8kY" target="_blank">Watch Video</a>
+                    <a href="https://www.youtube.com/watch?v=ntro-2PsHZI" target="_blank">Watch Video</a>
                 </div>
                 <div class="link-card">
-                    <a href="https://github.com/siva-tanikonda/cs184-paper" target="_blank">Project GitHub</a>
+                    <a href="https://siva-tanikonda.github.io/cs184-paper-wp/final/index.html" target="_blank">Writeup Website</a>
                 </div>
+                <!-- <div class="link-card">
+                    <a href="https://github.com/siva-tanikonda/cs184-paper" target="_blank">Project GitHub</a>
+                </div> -->
             </div>
         </div>
     </header>
@@ -37,6 +40,7 @@
         <section id="abstract">
             <h2>Abstract</h2>
             <p> This project explores the simulation of the dynamics of thin-sheets, focusing on achieving realistic folding and bending behaviors particularly on stiff materials like paper. Building upon the CS 184 Project 4 cloth simulation framework, we implemented a robust physics engine that addresses key stability challenges in material simulation. We replaced the rectangular grid structure with support for arbitrary triangle meshes loaded from OBJ files, and introduced constraint-based energy functions. To overcome stability issues with explicit Verlet integration, we implemented a semi-implicit Euler solver with TinyAD for automatic differentiation, enabling efficient computation of derivatives and Hessians for our constraint system. We enhanced realism through angle-based bending constraints and plastic deformation modeling. While we initially planned to implement full origami-like paper simulations, in the interest of time we narrowed our scope to focus on the underlying physics of paper-like materials and ended up being able to simualte general thin sheets. Our approach successfully demonstrates that cloth simulation techniques can be adapted to model stiffer materials with realistic folding behavior without implementing complex remeshing or explicit fold creation.</p>
+            <b>If you are viewing this as a PDF, please visit the website to see animated GIFs.</b>
             
             <div class="image-gallery">
                 <div class="image-card image-placeholder">
