@@ -29,14 +29,10 @@
 
     <div class="container">
         <!-- Video placeholder -->
-        <section id="video">
+        <!-- <section id="video">
             <div class="video-container">
-                <!-- Video will be embedded here -->
-                <div class="video-placeholder">
-                    <p>Video demonstration will be added here</p>
-                </div>
             </div>
-        </section>
+        </section> -->
 
         <section id="abstract">
             <h2>Abstract</h2>
@@ -44,11 +40,7 @@
             
             <div class="image-gallery">
                 <div class="image-card image-placeholder">
-                    <div class="placeholder-content">
-                        <p>Project overview image</p>
-                        <span class="placeholder-note">(A representative image or diagram of the paper simulation will go here)</span>
-                    </div>
-                    <figcaption>Project Overview Placeholder</figcaption>
+                    <img src="images/crumple_plastic.gif" style="width:500px" alt="Stiff paper on Ball Using New Model">
                 </div>
             </div>
         </section>
@@ -61,24 +53,12 @@
             <h3>1. Triangle Mesh Support</h3>
             <p>We began by replacing Project 4's grid-based cloth structure with a general mesh system capable of loading arbitrary triangular meshes from .obj files. We used the TinyOBJ library to parse these input files and into lists of spatial positions, UV coordinates, and faces.</p>
 
-            <!-- <p>For each triangle in the mesh, we construct a material-space parameterization matrix \(D_{uv}\) and its inverse \(D_{uv}^{-1}\), which relate texture-space coordinates to 3D positions. This mapping is critical for accurate physics simulation, as it allows us to compute deformation gradients and strain tensors that preserve the original material properties. The core relationship is defined by:</p>
-
-            <p class="formula">
-                \[(x_2 - x_1 \quad x_3 - x_1) = \begin{pmatrix} u_2 - u_1 & u_3 - u_1 \\ v_2 - v_1 & v_3 - v_1 \end{pmatrix} \begin{pmatrix} w_u \\ w_v \end{pmatrix}\]
-            </p>
-
-            <p>Where \((u_i, v_i)\) are texture coordinates, \(x_i\) are 3D positions, and \(w_u\) and \(w_v\) are the 3D directions corresponding to the local \((u, v)\) axes in material space. This formulation enables us to simulate more complex shapes with physically accurate folding and bending behaviors, which are essential for realistic cloth simulation.</p> -->
-
-            <!-- <div class="image-gallery">
-                <div class="image-card">
+            <div class="image-gallery">
+                <div class="image-card" style="width:500px">
                     <img src="images/bunny.png" alt="Bunny Mesh in Cloth Simulator">
                     <figcaption>Bunny Mesh in Cloth Simulator</figcaption>
                 </div>
-                <div class="image-card">
-                    <img src="images/cloth.png" alt="Cloth on Ball Using New Model">
-                    <figcaption>Cloth on Ball Using New Model</figcaption>
-                </div>
-            </div> -->
+            </div>
 
             <!-- <p>The mesh system is complemented by a half-edge data structure that efficiently tracks adjacency information between triangles, enabling us to model bending forces between non-adjacent vertices across shared edges. This representation provides the topological foundation needed for simulating the complex mechanical behaviors of cloth, particularly its resistance to folding.</p> -->
 
@@ -117,7 +97,7 @@
               (intution: scaling of normalized basis functions \(\mathbf{w}_u, \mathbf{w}_v\) must cause stretching)
             </p>
             <p>
-                Unsurprisingly, shearing is quite similar and is also formulated on a per-triangle basis in terms of the same basis vectors:
+                Unsurprisingly, shearing is quite similar and is also formulated per-triangle in terms of the same basis vectors:
             </p>
             <p class="formula">
                 \[
@@ -146,8 +126,12 @@
             <p>
                 For non-stiff systems such as floppy cloth, the constraints combined with the original Verlet integrator work quite well:
             </p>
-            <div>
-                <img src="images/constraint_verlet.gif" alt="Cloth on Ball Using New Model" style="width:300px">
+
+            <div class="image-gallery">
+                <div class="image-card" style="width:500px">
+                    <img src="images/constraint_verlet.gif" alt="Cloth on Ball Using New Model">
+                    <figcaption>Verlet with floppy cloth</figcaption>
+                </div>
             </div>
             <p>
             However, when increasing the constraint coefficients to make the cloth highly-stretch/shear resistant like paper, the integrator would fail to converge without an incredibly small timestep. This made simulating any reasonable-length sequence impractical.
@@ -177,6 +161,14 @@
             <p>
                 The first two were not much effort, but the third was one of our biggest challenges: observe in the implicit update function the presence of force derivatives. We know the forces depend on the derivatives of constraint functions, so we actually need the <i>Hessians</i> of them. These are far too difficult to compute by hand, so we rewrote all of the energy functions in TinyAD's autodiff paradigm, which then computed gradients, Jacobians, and Hessians automatically. We could then use these in a solver to compute the velocity update. While this added some computational overhead, it at least guarantees correctness of the expressions and saves us a lot of effort.
             </p>
+            <div class="image-gallery">
+                <div class="image-card" style="width:500px">
+                    <img src="images/no_damp_fast.gif" alt="Stiff paper on Ball Using New Model">
+                    <figcaption>Stiff paper/cloth</figcaption>
+                </div>
+            </div>
+            <p>Though it might look wonky without damping, we were able to achieve the paper-like behavior where it "stands" on one bent edge instead of completely draping over the sphere.</p>
+
             <h3>4. Damping</h3>
             <p>
                 Damping gets a pretty thorough treatment in Baraff and Witkin: each constraint force has an associated damping force that has velocity dependence, so the Euler step gains two additional terms to account for this in the presence of \(\Delta v\).
@@ -185,14 +177,12 @@
 
             <div class="image-gallery">
                 <div class="image-card image-placeholder">
-                    <div class="placeholder-content">
-                        <p>No damping</p>
-                    </div>
+                    <img src="images/no_damp_fast.gif" alt="Cloth on Ball Using New Model">
+                    <figcaption>No damping</figcaption>
                 </div>
                 <div class="image-card image-placeholder">
-                    <div class="placeholder-content">
-                        <p>Damping</p>
-                    </div>
+                    <img src="images/damp_fast.gif" alt="Cloth on Ball Using New Model">
+                    <figcaption>Large (1% per timestep) Damping</figcaption>
                 </div>
             </div>
 
@@ -209,37 +199,38 @@
                 \]
             </p>
 
-            <div class="image-gallery">
-                <div class="image-card image-placeholder">
-                    <div class="placeholder-content">
-                        <p>Gradual crease formation</p>
-                        <span class="placeholder-note">(Visualization of rest distance interpolation over time)</span>
-                    </div>
-                    <figcaption>Plastic Deformation Through Rest Distance Modification</figcaption>
-                </div>
-            </div>
         <h3>6. Animation</h3>
         <p> To show paper crumpling in between objects, we took the static objects from Project 4 and added animation parameters: each object now has a set of spline points that trace the path it follows over time. Additional parameters like the radius of a sphere or the normal of a plane are also animated. This caused some issues with collisions: if a point collides with it, the correction vector now needs to include the distance the object will be updated due to animations. Even then, large forces can cause the paper to pass through objects, which can currently only be avoided with small-enough timesteps.</p>
+        <p> Here we have two animated planes crushing a pre-folded piece of paper, but there are still issues with clipping in collisions:</p>
+        <div class="image-gallery">
+            <div class="image-card" style="width:500px">
+                <img src="images/fold.gif" alt="Stiff paper on Ball Using New Model">
+                <figcaption>Paper crumpling inside a sphere</figcaption>
+            </div>
+        </div>
 
         </section>
 
 
         <section id="results">
             <h2>Results</h2>
+
             <div class="image-gallery">
-                <div class="image-card image-placeholder">
-                    <div class="placeholder-content">
-                        <p>Paper folding demonstration</p>
-                        <span class="placeholder-note">(Comparison of standard cloth vs. paper-like folding behavior)</span>
-                    </div>
-                    <figcaption>Paper vs. Cloth Folding Comparison</figcaption>
+                <div class="image-card" style="width:500px">
+                    <img src="images/crumple_plastic.gif" alt="Stiff paper on Ball Using New Model">
+                    <figcaption>High plasticity paper crumpling inside a sphere</figcaption>
                 </div>
-                <div class="image-card image-placeholder">
-                    <div class="placeholder-content">
-                        <p>Bending constraint visualization</p>
-                        <span class="placeholder-note">(Close-up showing forces along fold lines)</span>
-                    </div>
-                    <figcaption>Visualization of Bending Constraints</figcaption>
+            </div>
+            <div class="image-gallery">
+                <div class="image-card" style="width:500px">
+                    <img src="images/crumple_kinda_plastic.gif" alt="Stiff paper on Ball Using New Model">
+                    <figcaption>Medium plasticity paper crumpling inside a sphere</figcaption>
+                </div>
+            </div>
+            <div class="image-gallery">
+                <div class="image-card" style="width:500px">
+                    <img src="images/crumple_non_plastic.gif" alt="Stiff paper on Ball Using New Model">
+                    <figcaption>Non-plastic paper crumpling inside a sphere</figcaption>
                 </div>
             </div>
         </section>
@@ -516,6 +507,7 @@
             grid-template-columns: repeat(auto-fit, minmax(400px, 1fr));
             gap: 2rem;
             margin: 2rem 0;
+            justify-items: center;
         }
 
         .image-card {
@@ -524,7 +516,7 @@
             border-radius: 8px;
             overflow: hidden;
             box-shadow: 0 4px 6px rgba(0,0,0,0.1);
-            padding-bottom: 1rem;
+            /* padding-bottom: 1rem; */
         }
 
         .image-card img {
@@ -589,7 +581,9 @@
             }
             
             .image-gallery {
+                display: grid;
                 grid-template-columns: 1fr;
+                justify-items: center;
             }
             
             section {
