@@ -3,19 +3,19 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Paper Simulation: Milestone | CS 184</title>
+    <title>Implicit, deformable thin-sheet dynamics simulation engine | CS 184</title>
     <script src='https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.4/MathJax.js?config=default'></script>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
 </head>
 <body>
     <header>
         <div class="header-content">
-            <h1>Paper Simulation</h1>
+            <h1>Implicit, deformable thin-sheet dynamics simulation engine</h1>
             <div class="team-info">Siva Tanikonda, Krishna Mani, Max Tse, Brandon Huang (Team 16)</div>
             
             <div class="links-section">
                 <div class="link-card">
-                    <a href="https://docs.google.com/presentation/d/1H96KwcN61NkM5BgHfjxeoicezMRdKBxtncHrwsgJbNM/edit?usp=sharing" target="_blank">View Slides</a>
+                    <a href="https://docs.google.com/presentation/d/1yIHME1xWUIVmAh0gro_sDaUwCUG_WDbD6PqC_b9UnzE/edit?slide=id.g3540527368d_0_0#slide=id.g3540527368d_0_0" target="_blank">View Slides</a>
                 </div>
                 <div class="link-card">
                     <a href="https://youtu.be/uYZeY-sm8kY" target="_blank">Watch Video</a>
@@ -36,7 +36,7 @@
 
         <section id="abstract">
             <h2>Abstract</h2>
-            <p> This project explores the simulation of paper-like materials through cloth simulation techniques, focusing on achieving realistic folding and bending behaviors. Building upon the CS 184 Project 4 cloth simulation framework, we implemented a robust physics engine that addresses key stability challenges in material simulation. We replaced the rectangular grid structure with support for arbitrary triangle meshes loaded from OBJ files, and introduced specialized forces to approximate paper stiffness and bending resistance. To overcome stability issues with explicit Verlet integration, we implemented a semi-implicit Euler solver with TinyAD for automatic differentiation, enabling efficient computation of derivatives and Hessians for our constraint system. We enhanced realism through angle-based bending constraints and plastic deformation modeling. While we initially planned to implement full origami folding capabilities, in the interest of time we narrowed our scope to focus on the underlying physics of paper-like materials. Our approach successfully demonstrates that cloth simulation techniques can be adapted to model stiffer materials with realistic folding behavior without implementing complex remeshing or explicit fold creation.</p>
+            <p> This project explores the simulation of the dynamics of thin-sheets, focusing on achieving realistic folding and bending behaviors particularly on stiff materials like paper. Building upon the CS 184 Project 4 cloth simulation framework, we implemented a robust physics engine that addresses key stability challenges in material simulation. We replaced the rectangular grid structure with support for arbitrary triangle meshes loaded from OBJ files, and introduced constraint-based energy functions. To overcome stability issues with explicit Verlet integration, we implemented a semi-implicit Euler solver with TinyAD for automatic differentiation, enabling efficient computation of derivatives and Hessians for our constraint system. We enhanced realism through angle-based bending constraints and plastic deformation modeling. While we initially planned to implement full origami-like paper simulations, in the interest of time we narrowed our scope to focus on the underlying physics of paper-like materials and ended up being able to simualte general thin sheets. Our approach successfully demonstrates that cloth simulation techniques can be adapted to model stiffer materials with realistic folding behavior without implementing complex remeshing or explicit fold creation.</p>
             
             <div class="image-gallery">
                 <div class="image-card image-placeholder">
@@ -48,7 +48,8 @@
         <section id="technical-approach">
             <h2>Technical Approach</h2>
 
-            <p>Our project originally set out to simulate origami through the realistic paper-like physics engine in "Folding and Crumpling of Adaptive Sheets" by Pfaff et. al.. However, its nonlinear solver and remeshing algorithm proved too difficult to implement in four weeks, so we instead focused on the methods outlined in two simpler papers: "Large Steps in Cloth Simulation" by Baraff and Witkin, and "Discrete Shells Origami" by Burgoon et al. On top of the CS184 Project 4 (cloth simluation) GUI, this included: support for arbitrary triangle meshes, more advanced force and constraint models, and the improved numerical stability of a semi-implicit integrator.</p>
+            <p>Our project originally set out to simulate origami through the realistic thin-sheet engine in "Folding and Crumpling of Adaptive Sheets" by Pfaff et. al.. However, its nonlinear solver and remeshing algorithm proved too difficult to implement in four weeks, so we instead focused on the methods outlined in two simpler papers: "Large Steps in Cloth Simulation" by Baraff and Witkin, and "Discrete Shells" by Grinspun et al. On top of the CS184 Project 4 (cloth simluation) GUI, this included: support for arbitrary triangle meshes, more advanced force and constraint models, and the improved numerical stability of a semi-implicit integrator.</p>
+
 
             <h3>1. Triangle Mesh Support</h3>
             <p>We began by replacing Project 4's grid-based cloth structure with a general mesh system capable of loading arbitrary triangular meshes from .obj files. We used the TinyOBJ library to parse these input files and into lists of spatial positions, UV coordinates, and faces.</p>
@@ -136,7 +137,7 @@
                 </div>
             </div>
             <p>
-            However, when increasing the constraint coefficients to make the cloth highly-stretch/shear resistant like paper, the integrator would fail to converge without an incredibly small timestep. This made simulating any reasonable-length sequence impractical.
+            However, when increasing the constraint coefficients to make the cloth highly-stretch/shear resistant like plastics, papers, or metals, the integrator would fail to converge without an incredibly small timestep. This made simulating any reasonable-length sequence impractical.
             Again drawing from Baraff and Witkin, we replaced the Verlet integrator with a semi-implicit Euler integrator that has much, much better stability properties, allowing us to integrate highly stiff systems with large timesteps.
             </p>
             <p>
@@ -157,7 +158,7 @@
             <ul>
                 <li> Switch from updating positions to updating velocities, then positions with a linear approximation
                 <li> Switch from CGL to Eigen, to be compatible with most solvers
-                <li> Switch from computing derivatives by hand to using TinyAD (ADD LINK)
+                <li> Switch from computing derivatives by hand to using <a href="https://github.com/patr-schm/TinyAD">TinyAD</a>
             </ul>
 
             <p>
@@ -190,7 +191,7 @@
 
             <h3>5. Plastic Deformation</h3>
             <p>
-                To model paper's creasing, we introduced a simple model of plastic deformation. In real paper, repeated folding or excessive bending can cause permanent creases, where the material no longer returns to its original flat state. So, we allow the rest dihedral angle \(\bar{\theta}\) between adjacent triangles to update when the bending exceeds a certain threshold.
+                To model permanent modifications to material structure induced by forces, we introduced a simple model of plastic deformation. In real materials, repeated folding or excessive bending can cause permanent folds, creases, and tears, and it no longer returns to its original state. So, we allow the rest dihedral angle \(\bar{\theta}\) between adjacent triangles to update when the bending exceeds a certain threshold.
             </p>
             <p>
                 Specifically, during each simulation step, if the absolute difference between the current dihedral angle and the rest angle exceeds a plasticity threshold (\(\delta_\text{plastic}\)), we update the rest angle to partially "follow" the current angle:
@@ -202,8 +203,8 @@
             </p>
 
         <h3>6. Animation</h3>
-        <p> To show paper crumpling in between objects, we took the static objects from Project 4 and added animation parameters: each object now has a set of spline points that trace the path it follows over time. Additional parameters like the radius of a sphere or the normal of a plane are also animated. This caused some issues with collisions: if a point collides with it, the correction vector now needs to include the distance the object will be updated due to animations. Even then, large forces can cause the paper to pass through objects, which can currently only be avoided with small-enough timesteps.</p>
-        <p> Here we have two animated planes crushing a pre-folded piece of paper, but there are still issues with clipping in collisions:</p>
+        <p> To show materials interacting with moving objects (such as being folded or crushed), we took the static objects from Project 4 and added animation parameters: each object now has a set of spline points that trace the path it follows over time. Additional parameters like the radius of a sphere or the normal of a plane are also animated. This caused some issues with collisions: if a point collides with it, the correction vector now needs to include the distance the object will be updated due to animations. Even then, large forces can cause materials to pass through collision objects, which can currently only be avoided with small-enough timesteps.</p>
+        <p> Here we have two animated planes crushing a pre-folded piece of paper/plastic, but there are still issues with clipping in collisions:</p>
         <div class="image-gallery">
             <div class="image-card" style="width:500px">
                 <img src="images/fold.gif" alt="Stiff paper on Ball Using New Model">
@@ -233,6 +234,24 @@
                 <div class="image-card" style="width:500px">
                     <img src="images/crumple_non_plastic.gif" alt="Stiff paper on Ball Using New Model">
                     <figcaption>Non-plastic paper crumpling inside a sphere</figcaption>
+                </div>
+            </div>
+            <div class="image-gallery">
+                <div class="image-card" style="width:500px">
+                    <img src="images/bird_fall.gif" alt="Stiff plastic bird falling">
+                    <figcaption>Stiff plastic bird falling</figcaption>
+                </div>
+            </div>
+            <div class="image-gallery">
+                <div class="image-card" style="width:500px">
+                    <img src="images/bunny_fall.gif" alt="Stiff plastic bunny falling">
+                    <figcaption>Stiff plastic bunny falling</figcaption>
+                </div>
+            </div>
+            <div class="image-gallery">
+                <div class="image-card" style="width:500px">
+                    <img src="images/test.gif" alt="Stiff plastic bunny falling">
+                    <figcaption>Stiff plastic ball</figcaption>
                 </div>
             </div>
         </section>
@@ -281,8 +300,8 @@
             <h2>Resources</h2>
             <ul class="resources-list">
                 <li>
-                    <span class="resource-type">(Paper)</span> Discrete Shells Origami: 
-                    <a href="https://www.cs.columbia.edu/cg/pdfs/115-origami-CATA-2006.pdf" target="_blank">cs.columbia.edu/cg/pdfs/115-origami-CATA-2006.pdf</a>
+                    <span class="resource-type">(Paper)</span> Discrete Shells: 
+                    <a href="https://www.cs.columbia.edu/cg/pdfs/10_ds.pdf" target="_blank">https://www.cs.columbia.edu/cg/pdfs/10_ds.pdf</a>
                 </li>
                 <li>
                     <span class="resource-type">(Paper)</span> Large Steps in Cloth Simulation: 
@@ -308,28 +327,28 @@
                 <div class="contributor-card">
                     <h3>Siva Tanikonda</h3>
                     <ul class="contribution-list">
-                        <li class="contribution-placeholder">Contribution details will be added here</li>
+                        <li class="contribution-placeholder">Bending constraints, animation, more advanced collisions, rendering final GIF setups, debugging numerical issues, writeup</li>
                     </ul>
                 </div>
                 
                 <div class="contributor-card">
                     <h3>Krishna Mani</h3>
                     <ul class="contribution-list">
-                        <li class="contribution-placeholder">Contribution details will be added here</li>
+                        <li class="contribution-placeholder">Mesh loading, TinyAD integration, constraint implementation, numerical optimization, implicit integrator, animation, final GIFs, slides, writeup</li>
                     </ul>
                 </div>
                 
                 <div class="contributor-card">
                     <h3>Max Tse</h3>
                     <ul class="contribution-list">
-                        <li class="contribution-placeholder">Contribution details will be added here</li>
+                        <li class="contribution-placeholder">Final GIFs, slides, writeup</li>
                     </ul>
                 </div>
                 
                 <div class="contributor-card">
                     <h3>Brandon Huang</h3>
                     <ul class="contribution-list">
-                        <li class="contribution-placeholder">Contribution details will be added here</li>
+                        <li class="contribution-placeholder">Final GIFs, slides, writeup, bending constraints</li>
                     </ul>
                 </div>
             </div>
