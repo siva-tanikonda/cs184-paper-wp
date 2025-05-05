@@ -60,6 +60,8 @@
                 </div>
             </div>
 
+            <p>Note that if UV coordinates are not provided in the .obj file, we make it so each vertex has different UV coordinates for each triangle it is a part of. For a triangle described by vertices \(A,B,C\) (in CCW order), \(A\)'s UV coordinates are \((0,0)\), \(B\)'s UV coordinates are \((\|B-A\|,0)\), and \(C\)'s UV coordinates are \(\left(\text{proj}_{B-A}(C-A),\text{dist}(C, B-A)\right)\).</p>
+
             <!-- <p>The mesh system is complemented by a half-edge data structure that efficiently tracks adjacency information between triangles, enabling us to model bending forces between non-adjacent vertices across shared edges. This representation provides the topological foundation needed for simulating the complex mechanical behaviors of cloth, particularly its resistance to folding.</p> -->
 
             <h3>2. Constraint Formulation</h3>
@@ -106,11 +108,11 @@
                 (intution: non-orthogonality of normalized basis functions \(\mathbf{w}_u, \mathbf{w}_v\) must cause shearing)
             </p>
             <p>
-                Bending is instead formulated per-pairs of triangles in terms of the current and rest angles \(\theta, \bar{\theta}\) between their normals:
+                Bending is instead formulated per-pairs of triangles in terms of the current and rest angles \(\theta, \bar{\theta}\) between their normals (\(e\) is the length of the triangle edge and \(h(e)\) is the 1/3 the average areas of the two triangles):
             </p>
             <p class="formula">
                 \[
-                \mathbf{C(\vec{x})}_{\text{bend}} = (\theta - \bar{\theta})
+                \mathbf{C(\vec{x})}_{\text{bend}} = \frac{\|e\|}{\|h_e\|}(\theta - \bar{\theta})
                 \]
                 (intution: deviation from rest angle)
             </p>
